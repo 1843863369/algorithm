@@ -1,0 +1,69 @@
+#pragma once
+
+#ifndef G_G_H
+#define G_G_H
+
+#include <list>
+#include <map>
+#include <set>
+#include <vector>
+#include <iostream>
+
+using namespace std;
+
+class Edge;
+
+struct Node {
+	Node() = default;
+	Node(const int i) :data(i), in(0), out(0) {}
+	int data;
+	int in;
+	int out;
+	list<Edge*> edges;
+	list<Node*> neighbors;//邻节点
+};
+
+class Edge {
+public:
+	Edge() = default;
+	Edge(const int i, Node* f, Node* t) :w(i), from(f), to(t) {}
+	Node* from;
+	Node* to;
+	int w;
+};
+
+struct Graph {
+	map<int, Node*> nodes;//节点编号：节点
+	set<Edge*> edges;
+
+};
+//给定的数据是二维数组，每一行：from，to，weight
+Graph* GraphGenetator(vector<vector<int>> &v) {
+	Graph* graph = new Graph();
+	Node *from_tmp;
+	Node *to_tmp;
+	int from;
+	int to;
+	int weight;
+	decltype(graph->nodes.insert({ from,new Node(0) })) insert_from;
+	decltype(graph->edges.insert(new Edge(weight, from_tmp, to_tmp))) insert_edge;
+	auto insert_to = insert_from;
+	for (auto &i : v) {
+		from = i[0];
+		to = i[1];
+		weight = i[2];
+		insert_from = graph->nodes.insert({ from,new Node(from) });
+		insert_to = graph->nodes.insert({ to,new Node(to) });
+		//first：pair，second：bool,  first.first: from/to的值，first.second:Node*
+		from_tmp = insert_from.first->second;
+		to_tmp = insert_to.first->second;
+		insert_edge = graph->edges.insert(new Edge(weight, from_tmp, to_tmp));
+		++from_tmp->out;
+		++to_tmp->in;
+		from_tmp->edges.push_back(*insert_edge.first);
+		from_tmp->neighbors.push_back(to_tmp);
+	}
+	return graph;
+}
+
+#endif
